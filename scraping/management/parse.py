@@ -47,7 +47,11 @@ def     get_jobs(num_jobs, verbose):
     # options.add_argument('headless')
 
     # Change the path to where chromedriver is in your home folder.
-    chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver_2')
+    # Mac chromedriver
+    # chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver_2')
+    # Windows chromedriver
+    chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver.exe')
+
     driver = webdriver.Chrome(
         executable_path=chrome_driver_path,
         options=options)
