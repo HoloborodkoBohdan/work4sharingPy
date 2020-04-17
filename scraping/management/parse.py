@@ -37,7 +37,7 @@ def parsing():
     return parser.parse_args()
 
 
-def     get_jobs(num_jobs, verbose):
+def get_jobs_glassdoor(num_jobs, verbose):
     '''Gathers jobs as a dataframe, scraped from Glassdoor'''
 
     # Initializing the webdriver
@@ -227,12 +227,14 @@ def     get_jobs(num_jobs, verbose):
 
     return jobs
 
+def get_jobs_stepstone(num_jobs, verbose):
+    return []
 
 if __name__ == "__main__":
     # args = parsing()
 
     # print(json.dumps(vars(args), indent=4))
 
-    data = get_jobs(35, False)
+    data = get_jobs_glassdoor(35, False)
     with open('out.json', "w", encoding="utf8") as file_obj:
         json.dump(data, file_obj, ensure_ascii=False, indent=4)

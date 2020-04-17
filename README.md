@@ -8,8 +8,16 @@ Python parser for Work4Share
 - make a ```venv```, run ```pip install requirements.txt```
 - run ```python manage.py migrate```
 - run ```python manage.py runserver``` to run the server
-- run ```python manage.py scrape``` to run scraping
+- run ```python manage.py scrape glassdoor -c 2``` to run scraping
 - run ```python manage.py match``` to run matching
+
+## How to run scrape
+run ```python manage.py scrape``` with aditional params:
+* You need to specify a site for scraping. Available variants: **glassdoor, stepstone**. 
+This is a required parameter.
+* ```-c (--count)``` determines the number of vacancies for parsing. The default is 20. This is an optional parameter.
+
+Example: ```python manage.py scrape glassdoor -c 2```
 
 ## How it works
 
