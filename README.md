@@ -36,6 +36,14 @@ run ```python manage.py match``` with additional params:
 
 Example: ```python manage.py match -m True -t 5 -p 50```
 
+## How to run scrape
+run ```python manage.py scrape``` with aditional params:
+* You need to specify a site for scraping. Available variants: **glassdoor, stepstone**. 
+This is a required parameter.
+* ```-c (--count)``` determines the number of vacancies for parsing. The default is 20. This is an optional parameter.
+
+Example: ```python manage.py scrape glassdoor -c 2```
+
 ## How it works
 
 The server accepts new Employee data on the ```/api/v1/employees/``` endpoint. POST requests only. Fields schema can be found in scraping/models.py

@@ -7,6 +7,13 @@ from scraping.models import Job
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('site', type=str, 
+            help='Site for parsing. Available: glassdoor, stepstone'
+        )
+        parser.add_argument('-c', '--count', type=int, 
+            help='Number of jobs for parsing', 
+        )
 
     def add_arguments(self, parser):
         parser.add_argument('site', type=str, 
