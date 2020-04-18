@@ -1,10 +1,13 @@
 from django.shortcuts import render
+from rest_framework.generics import ListCreateAPIView, ListAPIView
+from django_filters import rest_framework as filters
 
-# Create your views here.
-from rest_framework.generics import CreateAPIView
-
-from scraping.serializers import EmployeeSerializer
+from scraping.models import Employee
+from scraping.serializers import EmployeeSerializer, mockup_employee_serializer
 
 
-class CreateEmployeeView(CreateAPIView):
-    serializer_class = EmployeeSerializer
+class EmployeeView(ListAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = mockup_employee_serializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ('position',)

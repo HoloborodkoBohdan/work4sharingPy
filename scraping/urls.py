@@ -1,7 +1,7 @@
 from django.urls import path
 
-from scraping.views import CreateEmployeeView
+from scraping.views import EmployeeView
 
 urlpatterns = [
-    path('employees/', CreateEmployeeView.as_view())
+    path('employees/', EmployeeView.as_view())
 ]
