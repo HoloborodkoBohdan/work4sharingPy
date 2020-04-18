@@ -254,11 +254,13 @@ def get_jobs_stepstone(num_jobs, verbose):
 
         # Parse elements on main page
         job_list = driver.find_elements_by_tag_name("article")
-        article = job_list[len(jobs)]
+        article = job_list[len(jobs)%jobs_on_page]
         try:
-            divs = article.find_elements_by_tag_name("div")
-            info_divs = divs[1].find_elements_by_tag_name("div")
-            job_link = info_divs[0].find_element_by_tag_name("a")
+            job_item = article.find_element_by_class_name("styled__JobItemFirstLineWrapper-sc-11l5pt9-2")
+            job_link = job_item.find_element_by_tag_name("a")
+            # divs = article.find_elements_by_tag_name("div")
+            # info_divs = divs[1].find_elements_by_tag_name("div")
+            # job_link = info_divs[0].find_element_by_tag_name("a")
         except IndexError:
             jobs.append({
                 'url': "",
