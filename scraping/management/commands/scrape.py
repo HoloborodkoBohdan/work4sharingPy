@@ -36,11 +36,19 @@ class Command(BaseCommand):
         model_jobs = []
         for job in jobs:
             model_jobs.append(Job(
-                url=site,
-                title=job['Job Title'],
-                company_name=job['Company Name'],
-                location=job['Location'],
-                industry=job['Industry'],
-                date_created=datetime.today(),
+                site = site,
+                url = job['url'],
+                title = job['title'],
+                work_type = job['work_type'],
+                contract = job['contract'],
+                description = job['description'],
+                skills = job['skills'],
+                date_created = datetime.today(),
+                company_name = job['company_name'],
+                location = job['location'],
+                industry = job['industry'],
+                email = job['email'],
+                phone = job['phone'],
+                address = job['address'],
             ))
         Job.objects.bulk_create(model_jobs)
