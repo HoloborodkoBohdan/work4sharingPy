@@ -75,8 +75,6 @@ def get_jobs_glassdoor(num_jobs, verbose):
         except NoSuchElementException:
             pass
 
-        new_url = driver.get_url();
-
         # Going through each job in this page
         job_buttons = driver.find_elements_by_class_name(
             "jl")  # jl for Job Listing. These are the buttons we're going to click.
@@ -199,7 +197,7 @@ def get_jobs_glassdoor(num_jobs, verbose):
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
             jobs.append({
-                'url': driver.current_url(),
+                'url': driver.current_url,
                 'title': job_title,
                 'work_type': "",
                 'contract': "",
@@ -245,7 +243,11 @@ def get_jobs_stepstone(num_jobs, verbose):
     driver.set_window_size(1120, 1000)
     driver.get(url)
 
+    # Get amount of jobs on page
+    jobs_on_page = int(driver.find_element_by_class_name('styled__DropdownButtonStyled-sc-1rg1qfu-0').text.strip())
+    
     jobs = []
+
     while len(jobs) < num_jobs:
         time.sleep(1)
         print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
@@ -253,9 +255,26 @@ def get_jobs_stepstone(num_jobs, verbose):
         # Parse elements on main page
         job_list = driver.find_elements_by_tag_name("article")
         article = job_list[len(jobs)]
-        divs = article.find_elements_by_tag_name("div")
-        info_divs = divs[1].find_elements_by_tag_name("div")
-        job_link =info_divs[0].find_element_by_tag_name("a")
+        try:
+            divs = article.find_elements_by_tag_name("div")
+            info_divs = divs[1].find_elements_by_tag_name("div")
+            job_link = info_divs[0].find_element_by_tag_name("a")
+        except IndexError:
+            jobs.append({
+                'url': "",
+                'title': "",
+                'work_type': "",
+                'contract': "",
+                'description': "",
+                'skills': "",
+                'company_name': "",
+                'location': "",
+                'industry': "",
+                'email': "",
+                'phone': "",
+                'address': "",
+            })
+            continue
 
         # Open detail page
         new_url = job_link.get_attribute("href")
@@ -265,32 +284,85 @@ def get_jobs_stepstone(num_jobs, verbose):
         time.sleep(1)
 
         # Parse elements on detail page
-        company_name = driver.find_element_by_class_name("at-listing-nav-company-name-link").text
-        print('#Company Name: ', company_name)
-        location = driver.find_element_by_class_name('at-listing__list-icons_location').find_elements_by_tag_name("span")[1].text
-        print('#Location: ', location)
-        job_title = driver.find_element_by_class_name('at-listing-nav-listing-title').text
-        print('#Job Title: ', job_title)
-        job_description = driver.find_element_by_class_name('js-app-ld-ContentBlock').text
+        try:
+            company_name = driver.find_element_by_class_name("at-listing-nav-company-name-link").text
+            print('#Company Name: ', company_name)
+        except NoSuchElementException:
+            company_name = -1
+
+        try:
+            location = driver.find_element_by_class_name('at-listing__list-icons_location').find_elements_by_tag_name("span")[1].text
+            print('#Location: ', location)
+        except NoSuchElementException:
+            location = -1
+
+        try:
+            job_title = driver.find_element_by_class_name('at-listing-nav-listing-title').text
+            print('#Job Title: ', job_title)
+        except NoSuchElementException:
+            job_title = -1
+
+        try:
+            job_description = driver.find_element_by_class_name('js-app-ld-ContentBlock').text
+            print('#Job Description: ', job_description[:100])
+        except NoSuchElementException:
+            job_description = -1
+
+        try:
+            contract_type = driver.find_element_by_class_name('at-listing__list-icons_contract-type').text
+            print('#Contract Type: ', contract_type)
+        except NoSuchElementException:
+            contract_type = -1
+
+        try:
+            job_type = driver.find_element_by_class_name('at-listing__list-icons_work-type').text
+            print('#Job Type: ', job_type)
+        except NoSuchElementException:
+            job_type = -1
+
+        try:
+            e_mail = ''
+            e_mail_text = driver.find_element_by_class_name('at-section-text-contact-content').text.split()
+            for word in e_mail_text:
+                if '@' in word:
+                    e_mail = word.replace('to:','')
+                    print('#E-mail: ', e_mail)
+                    break
+        except NoSuchElementException:
+            e_mail = -1
+
+        try:
+            office_address = driver.find_element_by_tag_name("address").text.splitlines()[1]
+            print('#Address: ', office_address)
+        except NoSuchElementException:
+            office_address = -1
 
         # Save information and go back to main page
         jobs.append({
             'url': new_url,
             'title': job_title,
-            'work_type': "",
-            'contract': "",
+            'work_type': job_type,
+            'contract': contract_type,
             'description': job_description,
             'skills': "",
             'company_name': company_name,
             'location': location,
             'industry': "",
-            'email': "",
+            'email': e_mail,
             'phone': "",
-            'address': "",
+            'address': office_address,
         })
         driver.close()
         driver.switch_to.window(driver.window_handles[0])
         driver.get(url)
+
+        if len(jobs) % jobs_on_page == 0:
+            try:
+                driver.find_element_by_xpath('.//a[@title="Next"]').click()
+            except NoSuchElementException:
+                print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs,
+                                                                                                             len(jobs)))
+                break
 
     return jobs
 
