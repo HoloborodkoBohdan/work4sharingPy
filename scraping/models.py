@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -15,7 +17,7 @@ WORK_TYPES = [
 
 class Employee(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
-    skills = models.TextField(null=True)
+    skills = models.TextField(default='')
     position = models.CharField(max_length=255)
 
     def __str__(self):
@@ -24,22 +26,22 @@ class Employee(models.Model):
 
 class Job(models.Model):
     # Vacancy
-    site = models.TextField(null=True)
-    url = models.TextField(null=True)
-    title = models.TextField(null=True)
-    work_type = models.CharField(max_length=20, choices=WORK_TYPES, null=True)
-    contract = models.TextField(null=True)
-    description = models.TextField(null=True)
-    skills = models.TextField(null=True)
-    date_created = models.DateField(null=True)
+    site = models.TextField(default='')
+    url = models.TextField(default='')
+    title = models.TextField(default='')
+    work_type = models.TextField(default='')
+    contract = models.TextField(default='')
+    description = models.TextField(default='')
+    skills = models.TextField(default='')
+    date_created = models.DateField(default=datetime.today())
 
     # Company
-    company_name = models.TextField(null=True)
-    location = models.TextField(null=True)
-    industry = models.TextField(null=True)
-    email = models.TextField(null=True)
-    phone = models.TextField(null=True)
-    address = models.TextField(null=True)
+    company_name = models.TextField(default='')
+    location = models.TextField(default='')
+    industry = models.TextField(default='')
+    email = models.TextField(default='')
+    phone = models.TextField(default='')
+    address = models.TextField(default='')
 
     def __str__(self):
-        return self.title + " - " + self.company_name + " (" + self.location + ")"
+        return self.title + " - " + self.company_name + " (" + self.location + ") " + self.email

@@ -128,3 +128,4 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'fortestantony@yandex.ru'
 EMAIL_HOST_PASSWORD = 'qwerty123456'
+
