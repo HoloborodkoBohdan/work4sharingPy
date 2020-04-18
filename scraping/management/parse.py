@@ -256,7 +256,7 @@ def get_jobs_stepstone(num_jobs, verbose):
         job_list = driver.find_elements_by_tag_name("article")
         article = job_list[len(jobs)%jobs_on_page]
         try:
-            job_item = article.find_element_by_class_name("styled__JobItemFirstLineWrapper-sc-11l5pt9-2")
+            job_item = article.find_element_by_xpath('.//div[contains(@class, "JobItemFirstLineWrapper")]')
             job_link = job_item.find_element_by_tag_name("a")
             # divs = article.find_elements_by_tag_name("div")
             # info_divs = divs[1].find_elements_by_tag_name("div")
