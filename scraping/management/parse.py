@@ -1,5 +1,6 @@
 import argparse
 import os
+from sys import platform
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium import webdriver
@@ -42,15 +43,9 @@ def get_jobs_glassdoor(num_jobs, verbose):
 
     # Initializing the webdriver
     options = webdriver.ChromeOptions()
-
     # Uncomment the line below if you'd like to scrape without a new Chrome window every time.
     # options.add_argument('headless')
-
-    # Change the path to where chromedriver is in your home folder.
-    # Mac chromedriver
-    # chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver_2')
-    # Windows chromedriver
-    chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver.exe')
+    chrome_driver_path = get_chrome_driver_path()
 
     driver = webdriver.Chrome(
         executable_path=chrome_driver_path,
@@ -79,6 +74,8 @@ def get_jobs_glassdoor(num_jobs, verbose):
             driver.find_element_by_class_name("modal_closeIcon-svg").click()  # clicking to the X.
         except NoSuchElementException:
             pass
+
+        new_url = driver.get_url();
 
         # Going through each job in this page
         job_buttons = driver.find_elements_by_class_name(
@@ -201,20 +198,30 @@ def get_jobs_glassdoor(num_jobs, verbose):
                 print("Competitors: {}".format(competitors))
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
-            jobs.append({"Job Title": job_title,
-                         "Salary Estimate": salary_estimate,
-                         "Job Description": job_description,
-                         "Rating": rating,
-                         "Company Name": company_name,
-                         "Location": location,
-                         "Headquarters": headquarters,
-                         "Size": size,
-                         "Founded": founded,
-                         "Type of ownership": type_of_ownership,
-                         "Industry": industry,
-                         "Sector": sector,
-                         "Revenue": revenue,
-                         "Competitors": competitors})
+            jobs.append({
+                'url': driver.current_url(),
+                'title': job_title,
+                'work_type': "",
+                'contract': "",
+                'description': job_description,
+                'skills': "",
+                'company_name': company_name,
+                'location': location,
+                'industry': industry,
+                'email': "",
+                'phone': "",
+                'address': "",
+            })
+
+            #   "Salary Estimate": salary_estimate,
+            #   "Rating": rating,
+            #   "Sector": sector,
+            #   "Revenue": revenue,
+            #   "Competitors": competitors
+            #   "Headquarters": headquarters,
+            #   "Size": size,
+            #   "Founded": founded,
+            #   "Type of ownership": type_of_ownership,
             # add job to jobs
 
         # Clicking on the "next page" button
@@ -228,62 +235,72 @@ def get_jobs_glassdoor(num_jobs, verbose):
     return jobs
 
 def get_jobs_stepstone(num_jobs, verbose):
-    options = webdriver.ChromeOptions()
-    # Free proxy from https://free-proxy-list.net/
-    options.add_argument('--proxy-server=154.16.202.22:8080')
-
-
-    # TO_FIX: take out from function
-    # Change the path to where chromedriver is in your home folder.
-    # Mac chromedriver
-    # chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver_2')
-    # Windows chromedriver
-    chrome_driver_path = os.path.join(settings.BASE_DIR, 'chromedriver.exe')
-
-    driver = webdriver.Chrome(
-        executable_path=chrome_driver_path,
-        options=options)
-    driver.set_window_size(1120, 1000)
+    '''Gathers jobs as a dataframe, scraped from Stepstone'''
 
     url = 'https://www.stepstone.de/5/job-search-simple.html'
+
+    # Initializing the webdriver
+    options = webdriver.ChromeOptions()
+    driver = webdriver.Chrome(executable_path=get_chrome_driver_path(), options=options)
+    driver.set_window_size(1120, 1000)
     driver.get(url)
+
     jobs = []
     while len(jobs) < num_jobs:
         time.sleep(1)
+        print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
 
-        job_list = driver.find_elements_by_class_name(
-            "styled__TitleWrapper-sc-7z1cau-1")
-        
-        for job_link in job_list:
-            print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
-            if len(jobs) >= num_jobs:
-                break
+        # Parse elements on main page
+        job_list = driver.find_elements_by_tag_name("article")
+        article = job_list[len(jobs)]
+        divs = article.find_elements_by_tag_name("div")
+        info_divs = divs[1].find_elements_by_tag_name("div")
+        job_link =info_divs[0].find_element_by_tag_name("a")
 
-            job_link.click() 
-            time.sleep(4)
-            collected_successfully = False
+        # Open detail page
+        new_url = job_link.get_attribute("href")
+        driver.execute_script("window.open()")
+        driver.switch_to.window(driver.window_handles[1])
+        driver.get(new_url)
+        time.sleep(1)
 
-            try:
-                driver.find_element_by_xpath("/html/body/div[3]/div[2]/div[2]/div/div[1]/div[4]/div/div/div/div/a/span/svg").click()
-            except NoSuchElementException:
-                pass
+        # Parse elements on detail page
+        company_name = driver.find_element_by_class_name("at-listing-nav-company-name-link").text
+        print('#Company Name: ', company_name)
+        location = driver.find_element_by_class_name('at-listing__list-icons_location').find_elements_by_tag_name("span")[1].text
+        print('#Location: ', location)
+        job_title = driver.find_element_by_class_name('at-listing-nav-listing-title').text
+        print('#Job Title: ', job_title)
+        job_description = driver.find_element_by_class_name('js-app-ld-ContentBlock').text
 
-            while not collected_successfully:
-                try:
-                    company_name = driver.find_elements_by_class_name("at-listing-nav-company-name-link")
-                    #print('company_name', company_name)
-                    #location = driver.find_element_by_xpath('/html/body/div[3]/div[2]/div[2]/div/div[1]/div[1]/div[1]/div[1]/div/div[3]/ul/li[2]/a/span[2]').text
-                    location = driver.find_elements_by_class_name('listing-list at-listing__list-icons_location')
-                    #print('location', location)
-                    job_title = driver.find_element_by_xpath('.//h1[contains(@class, "listing__job-title")]').text
-                    #print('job title', job_title)
-                    #job_description = driver.find_element_by_xpath('.//div[@class="jjs-app-ld-ContentBlock"]').text
-                    job_description = driver.find_elements_by_class_name('js-app-ld-ContentBlock')
-                    #print('job desc', job_description)
-                    collected_successfully = True
+        # Save information and go back to main page
+        jobs.append({
+            'url': new_url,
+            'title': job_title,
+            'work_type': "",
+            'contract': "",
+            'description': job_description,
+            'skills': "",
+            'company_name': company_name,
+            'location': location,
+            'industry': "",
+            'email': "",
+            'phone': "",
+            'address': "",
+        })
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        driver.get(url)
 
-                except:
-                    time.sleep(3)
-            #return []
+    return jobs
 
-    return []
+def get_chrome_driver_path():
+    if platform == "linux" or platform == "linux2":
+        # linux chromedriver
+        return os.path.join(settings.BASE_DIR, 'chromedriver_linux64')
+    elif platform == "darwin":
+        # OS X chromedriver
+        return os.path.join(settings.BASE_DIR, 'chromedriver_mac64')
+    elif platform == "win32":
+        # Windows chromedriver
+        return os.path.join(settings.BASE_DIR, 'chromedriver_win32.exe')

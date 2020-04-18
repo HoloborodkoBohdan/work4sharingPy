@@ -47,7 +47,9 @@ We use [SemVer](http://semver.org/) for versioning.
 
 ## Authors
 
-* **Stepan Filonov** - *Initial work* - [stepacool](https://github.com/stepacool)
+* **Stepan Filonov** - *Initial work, create API, matching and parse Lithuanian job site* - [stepacool](https://github.com/stepacool)
+* **Bohdan Holoborodko** - *Change scrape and begin to parse German job site* - [HoloborodkoBohdan](https://github.com/HoloborodkoBohdan)
+* **Sergey Lavrov** - *Some fixes and parse German job site* - [lavsexpert](https://github.com/lavsexpert)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
