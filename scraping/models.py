@@ -14,8 +14,10 @@ WORK_TYPES = [
 
 class Employee(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
-    skills = models.TextField(default='')
+    conformity = models.FloatField(default=0)
     position = models.CharField(max_length=255)
+    vacancy = models.TextField(default='')
+    skills = models.TextField(default='')
 
     def __str__(self):
         return self.position + " (" + self.status + ")"

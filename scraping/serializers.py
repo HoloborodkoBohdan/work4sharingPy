@@ -7,7 +7,7 @@ class EmployeeSerializer(ModelSerializer):
     
     class Meta:
         model = Employee
-        fields = ('id', 'status', 'skills', 'position')
+        fields = ('id', 'status', 'skills', 'position', 'vacancy', 'conformity', 'skills')
 
 
 def mockup_employee_serializer(employee_view, *args, **kwargs):
@@ -22,7 +22,7 @@ def mockup_employee_serializer(employee_view, *args, **kwargs):
 
     for item in args[0]:
         if item.skills:
-            skills = item.skills.split()
+            skills = item.skills.splitlines()
         else: 
             skills = []
 
