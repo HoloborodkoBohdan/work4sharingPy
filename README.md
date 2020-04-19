@@ -9,7 +9,7 @@ Python parser for Work4Share
 - run ```python manage.py migrate```
 - run ```python manage.py runserver``` to run the server
 - run ```python manage.py scrape glassdoor -c 2``` to run scraping
-- run ```python manage.py match -m -t 5 -p 50``` to run matching
+- run ```python manage.py match -id 3 -m -t 5 -p 50``` to run matching
 
 ## How to run scrape
 run ```python manage.py scrape``` with additional params:
@@ -29,9 +29,10 @@ Before run match create file **local_settings.py** in folder **JobParser** and f
     EMAIL_HOST_PASSWORD = 'mypassword'
 
 run ```python manage.py match``` with additional params:
+* ```-id (--id)``` if you need to match only one request you cat set it id. Or set to default=0 to match all requests.
 * ```-m (--mail)``` if you need send mails. The default is False.
 * ```-t (--top)``` maximum number of most suitable vacancies to found. The default is 10.
-* ```-p (--percent)``` minimum percentage of suitable vacancies to foundd. The default is 70.0.
+* ```-p (--percent)``` minimum percentage of suitable vacancies to found. The default is 70.
 
 Example: ```python manage.py match -m True -t 5 -p 50```
 

@@ -11,6 +11,9 @@ class Command(BaseCommand):
         parser.add_argument('-m', '--mail', type=bool,
                             help='Send mails after matching'
                             )
+        parser.add_argument('-id', '--id', type=int,
+                            help='Number of request to matching'
+                            )
         parser.add_argument('-t', '--top', type=int,
                             help='Maximum number of most suitable vacancies to found',
                             )
@@ -20,6 +23,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         is_send_mails = options.get('mail') or False
+        request_id = options.get('id') or 0
         top_count = options.get('top') or 10
         min_percent = options.get('percent') or 70
         jobs = []
@@ -27,5 +31,10 @@ class Command(BaseCommand):
             jobs.append(model_to_dict(job))
 
         employee_processor = EmployeeProcessor(jobs)
-        for request in Request.objects.filter(status='active'):
+        if request_id == 0:
+            for request in Request.objects.filter(status='active'):
+                employee_processor.run(request, is_send_mails, top_count, min_percent)
+        else:
+            request = Request.objects.filter(id=request_id)[0]
             employee_processor.run(request, is_send_mails, top_count, min_percent)
+
