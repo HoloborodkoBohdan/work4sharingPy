@@ -7,6 +7,7 @@ from scraping.models import Job
 
 
 class Command(BaseCommand):
+
     def add_arguments(self, parser):
         parser.add_argument('site', type=str, 
             help='Site for parsing. Available: glassdoor, stepstone'

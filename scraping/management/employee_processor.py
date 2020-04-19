@@ -21,7 +21,7 @@ class EmployeeProcessor:
         email = settings.EMAIL_HOST_USER
         email_thread.send_html_mail(title, text, [email], settings.EMAIL_HOST_USER)
 
-    def run(self, employee):
+    def run(self, employee, is_send_mails, top_count, min_percent):
         print("###", employee.position)
         recommendations = self.load_csv()
         variants = list()
@@ -35,13 +35,15 @@ class EmployeeProcessor:
 
         if len(variants) > 0:
             top_list = sorted(variants, key=itemgetter(0), reverse=True)
-            for variant in top_list[:3]:
+            for variant in top_list[:top_count]:
                 percentage = variant[0]
-                job = variant[1]
-                email = job.get('email')
-                if not(email is None) & (email != ''):
-                    #print(percentage, email, job.get('title', ''), '\n', variant[3])
-                    self._send_email(email, job.get('title', ''))
+                if percentage >= min_percent:
+                    job = variant[1]
+                    email = job.get('email')
+                    print(percentage, email, job.get('title', ''), '\n', variant[3])
+                    if is_send_mails:
+                        if not(email is None) & (email != ''):
+                            self._send_email(email, job.get('title', ''))
 
 
     # csv_file = "Вакансии - Словарь скиллы.csv"
