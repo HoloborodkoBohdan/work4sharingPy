@@ -2,7 +2,7 @@ from django.core.management import BaseCommand
 from django.forms import model_to_dict
 
 from scraping.management.employee_processor import EmployeeProcessor
-from scraping.models import Job, Employee
+from scraping.models import Job, Request
 
 
 class Command(BaseCommand):
@@ -27,5 +27,5 @@ class Command(BaseCommand):
             jobs.append(model_to_dict(job))
 
         employee_processor = EmployeeProcessor(jobs)
-        for employee in Employee.objects.filter(status='active'):
-            employee_processor.run(employee, is_send_mails, top_count, min_percent)
+        for request in Request.objects.filter(status='active'):
+            employee_processor.run(request, is_send_mails, top_count, min_percent)

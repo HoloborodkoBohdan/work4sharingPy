@@ -21,15 +21,15 @@ class EmployeeProcessor:
         email = settings.EMAIL_HOST_USER
         email_thread.send_html_mail(title, text, [email], settings.EMAIL_HOST_USER)
 
-    def run(self, employee, is_send_mails, top_count, min_percent):
-        print("###", employee.position)
+    def run(self, request, is_send_mails, top_count, min_percent):
+        print("###", request.position)
         recommendations = self.load_csv()
         variants = list()
-        employee_skills = employee.skills_text.splitlines()
+        request_skills = request.skills_text.splitlines()
         for job in self.jobs:
             if job.get('site') is None:
                 continue
-            percentage, must_have_skills = vacancy_percentage(employee_skills, job.get('description', ''))
+            percentage, must_have_skills = vacancy_percentage(request_skills, job.get('description', ''))
             skill_courses, names = courses_advice(recommendations, must_have_skills)
             variants.append((percentage, job, skill_courses, names))
 

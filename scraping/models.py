@@ -35,7 +35,7 @@ class Request(models.Model):
         return str(self.skills_text).splitlines()
 
     def __str__(self):
-        return self.position + " (" + self.status + ")"
+        return self.position + " (" + self.status + ") # " + ', '.join(self.skills())
 
 
 class Job(models.Model):
@@ -58,4 +58,4 @@ class Job(models.Model):
     address = models.TextField(default='')
 
     def __str__(self):
-        return self.title + " - " + self.company_name + " (" + self.location + ") " + self.email
+        return self.title + " - " + self.company_name + " (" + self.location + ") # " + self.email
