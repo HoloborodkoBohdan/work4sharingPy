@@ -3,6 +3,7 @@ from operator import itemgetter
 from JobParser import settings
 from scraping.management import email_thread
 from scraping.management.matcher import *
+from scraping.models import Employee, Skill
 
 
 class EmployeeProcessor:
@@ -38,9 +39,33 @@ class EmployeeProcessor:
             for variant in top_list[:top_count]:
                 percentage = variant[0]
                 if percentage >= min_percent:
+
                     job = variant[1]
+                    skill_courses = variant[2]
+                    names = variant[3]
                     email = job.get('email')
                     print(percentage, '% -', email, job.get('title', ''), '\n', variant[3])
+
+                    skills = []
+                    for skill_name in request_skills:
+                        if skill_name in names:
+                            skills.append(Skill(name=skill_name, isset=True, link=''))
+                        else:
+                            link = ''
+                            for course in skill_courses:
+                                if course[0] == skill_name:
+                                    link = course[2]
+                            skills.append(Skill(name=skill_name, isset=False, link=link))
+
+                    print(skills)
+                    employee = Employee.objects.create()
+                    employee.status = request.status
+                    employee.conformity = percentage
+                    employee.position = request.position
+                    employee.vacancy = job
+                    #employee.skills.set(skills)
+                    employee.save()
+
                     if is_send_mails:
                         if not(email is None) & (email != ''):
                             self._send_email(email, job.get('title', ''))

@@ -1,3 +1,5 @@
+import json
+
 from django.db import models
 from django.utils import timezone
 
@@ -12,18 +14,29 @@ WORK_TYPES = [
 ]
 
 
+class Skill(models.Model):
+    name = models.TextField(default='')
+    isset = models.BooleanField(default=False)
+    link = models.TextField(default='')
+    def __str__(self):
+        return self.name + " (" + str(self.isset) + ") - " + self.link
+
+
 class Employee(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     conformity = models.IntegerField(default=0)
     position = models.CharField(max_length=255)
     vacancy = models.TextField(default='')
-    skills_text = models.TextField(default='')
+    skills = models.ManyToManyField(Skill)
 
-    def skills(self):
-        return str(self.skills_text).splitlines()
+    def set_skills(self, x):
+        self.skills = json.dumps(x)
+
+    def get_skills(self):
+        return json.loads(self.skills)
 
     def __str__(self):
-        return self.position + " (" + self.status + ")"
+        return self.position + " (" + self.status + ") - " + str(self.conformity) + "%"
 
 
 class Request(models.Model):
