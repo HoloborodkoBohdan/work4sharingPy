@@ -244,7 +244,7 @@ def get_jobs_stepstone(num_jobs, verbose):
     driver.get(url)
 
     # Get amount of jobs on page
-    jobs_on_page = int(driver.find_element_by_class_name('styled__DropdownButtonStyled-sc-1rg1qfu-0').text.strip())
+    jobs_on_page = int(driver.find_element_by_xpath('.//button[contains(@class, "DropdownButtonStyled")]').text.strip())
     
     jobs = []
 
@@ -365,6 +365,8 @@ def get_jobs_stepstone(num_jobs, verbose):
                 print("Scraping terminated before reaching target number of jobs. Needed {}, got {}.".format(num_jobs,
                                                                                                              len(jobs)))
                 break
+
+    print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
 
     return jobs
 

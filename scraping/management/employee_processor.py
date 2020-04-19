@@ -25,7 +25,7 @@ class EmployeeProcessor:
         print("###", employee.position)
         recommendations = self.load_csv()
         variants = list()
-        employee_skills = employee.skills.splitlines()
+        employee_skills = employee.skills_text.splitlines()
         for job in self.jobs:
             if job.get('site') is None:
                 continue
@@ -40,7 +40,7 @@ class EmployeeProcessor:
                 if percentage >= min_percent:
                     job = variant[1]
                     email = job.get('email')
-                    print(percentage, email, job.get('title', ''), '\n', variant[3])
+                    print(percentage, '% -', email, job.get('title', ''), '\n', variant[3])
                     if is_send_mails:
                         if not(email is None) & (email != ''):
                             self._send_email(email, job.get('title', ''))

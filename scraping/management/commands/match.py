@@ -14,14 +14,14 @@ class Command(BaseCommand):
         parser.add_argument('-t', '--top', type=int,
                             help='Maximum number of most suitable vacancies to found',
                             )
-        parser.add_argument('-p', '--percent', type=float,
+        parser.add_argument('-p', '--percent', type=int,
                             help='Minimum percentage of suitable vacancies to found',
                             )
 
     def handle(self, *args, **options):
         is_send_mails = options.get('mail') or False
         top_count = options.get('top') or 10
-        min_percent = options.get('percent') or 70.0
+        min_percent = options.get('percent') or 70
         jobs = []
         for job in Job.objects.all():
             jobs.append(model_to_dict(job))

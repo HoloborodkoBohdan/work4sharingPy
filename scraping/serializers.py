@@ -7,7 +7,7 @@ class EmployeeSerializer(ModelSerializer):
     
     class Meta:
         model = Employee
-        fields = ('id', 'status', 'skills', 'position', 'vacancy', 'conformity', 'skills')
+        fields = ('id', 'position', 'status', 'vacancy', 'conformity', 'skills')
 
 
 def mockup_employee_serializer(employee_view, *args, **kwargs):

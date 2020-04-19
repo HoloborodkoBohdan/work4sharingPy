@@ -11,13 +11,14 @@ WORK_TYPES = [
     ('Part time', 'Part time'),
 ]
 
-
 class Employee(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
-    conformity = models.FloatField(default=0)
+    conformity = models.IntegerField(default=0)
     position = models.CharField(max_length=255)
     vacancy = models.TextField(default='')
-    skills = models.TextField(default='')
+    skills_text = models.TextField(default='')
+    def skills(self):
+        return str(self.skills_text).splitlines()
 
     def __str__(self):
         return self.position + " (" + self.status + ")"

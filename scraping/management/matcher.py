@@ -18,7 +18,7 @@ def vacancy_percentage(employer_skills, vacancy_description):
     if len(skills) == 0:
         percentage = 0
     else:
-        percentage = (len(shared) / len(skills)) * 100
+        percentage = int((len(shared) / len(skills)) * 100)
     return percentage, must_have_skills
 
 
