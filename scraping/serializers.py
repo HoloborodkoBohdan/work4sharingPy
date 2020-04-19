@@ -1,7 +1,16 @@
-from rest_framework.serializers import ModelSerializer, BaseSerializer
+from rest_framework.serializers import ModelSerializer
 
-from scraping.models import Employee
+from scraping.models import Employee, Request
 from random import randint
+
+
+class RequestSerializer(ModelSerializer):
+
+    class Meta:
+        model = Request
+        fields = ('id', 'position', 'status', 'skills_text', 'skills')
+        extra_kwargs = {'skills_text': {'write_only': True}}
+
 
 class EmployeeSerializer(ModelSerializer):
     
