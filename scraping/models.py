@@ -1,8 +1,5 @@
-from datetime import datetime
-
 from django.db import models
-
-# Create your models here.
+from django.utils import timezone
 
 STATUS_CHOICES = [
     ('active', 'active'),
@@ -33,7 +30,7 @@ class Job(models.Model):
     contract = models.TextField(default='')
     description = models.TextField(default='')
     skills = models.TextField(default='')
-    date_created = models.DateField(default=datetime.today())
+    date_created = models.DateField(default=timezone.now().date())
 
     # Company
     company_name = models.TextField(default='')

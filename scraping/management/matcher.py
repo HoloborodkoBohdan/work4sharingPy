@@ -24,10 +24,12 @@ def vacancy_percentage(employer_skills, vacancy_description):
 
 def courses_advice(recommendations, skills):
     skill_courses = []
+    names = []
     for skill in recommendations[1:]:
         if skill[0] in skills or skill[1] in skills:
             skill_courses.append(skill)
-    return skill_courses
+            names.append(skill[0])
+    return skill_courses, names
 
     # one element of skill_courses is like
     # ['Eigenständig', 'Work Independently', 'https://www.coursera.org/learn/positive-psychiatry', 'https://www.coursera.org/learn/learning-how-to-learn?index=prod_all_products_term_optimization']

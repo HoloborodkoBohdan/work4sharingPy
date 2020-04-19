@@ -1,8 +1,7 @@
 from operator import itemgetter
 
-from django.core.mail import send_mail
-
 from JobParser import settings
+from scraping.management import email_thread
 from scraping.management.matcher import *
 
 
@@ -15,32 +14,34 @@ class EmployeeProcessor:
         pass
 
 
-    def _send_email(self, email, job_title, percentage):
-        title = f'Regarding your {job_title} position ({percentage}%)'
+    def _send_email(self, email, job_title):
+        title = f'Regarding your "{job_title}" position'
         text = 'We have a candidate that might fit your position, please contact us if you are interested'
-        print(email, "\n", title)
+        print(email, ' -> ',title)
         email = settings.EMAIL_HOST_USER
-        #send_mail(title, text, settings.EMAIL_TEST_USER, [email], fail_silently=False)
+        email_thread.send_html_mail(title, text, [email], settings.EMAIL_HOST_USER)
 
     def run(self, employee):
         print("###", employee.position)
         recommendations = self.load_csv()
         variants = list()
+        employee_skills = employee.skills.splitlines()
         for job in self.jobs:
             if job.get('site') is None:
                 continue
-            percentage, must_have_skills = vacancy_percentage(employee.skills, job.get('description', ''))
-            skill_courses = courses_advice(recommendations, must_have_skills)
-            variants.append((percentage, job, skill_courses))
+            percentage, must_have_skills = vacancy_percentage(employee_skills, job.get('description', ''))
+            skill_courses, names = courses_advice(recommendations, must_have_skills)
+            variants.append((percentage, job, skill_courses, names))
 
         if len(variants) > 0:
             top_list = sorted(variants, key=itemgetter(0), reverse=True)
-            for variant in top_list:
+            for variant in top_list[:3]:
                 percentage = variant[0]
                 job = variant[1]
                 email = job.get('email')
                 if not(email is None) & (email != ''):
-                    self._send_email(email, job.get('title', ''), percentage)
+                    #print(percentage, email, job.get('title', ''), '\n', variant[3])
+                    self._send_email(email, job.get('title', ''))
 
 
     # csv_file = "Вакансии - Словарь скиллы.csv"
