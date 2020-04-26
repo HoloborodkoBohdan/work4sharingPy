@@ -21,24 +21,6 @@ class Skill(models.Model):
     def __str__(self):
         return self.name + " (" + str(self.isset) + ") - " + self.link
 
-
-class Employee(models.Model):
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
-    conformity = models.IntegerField(default=0)
-    position = models.CharField(max_length=255)
-    vacancy = models.TextField(default='')
-    skills = models.ManyToManyField(Skill)
-
-    def set_skills(self, x):
-        self.skills = json.dumps(x)
-
-    def get_skills(self):
-        return json.loads(self.skills)
-
-    def __str__(self):
-        return self.position + " (" + self.status + ") - " + str(self.conformity) + "%"
-
-
 class Request(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     position = models.CharField(max_length=255)
@@ -72,3 +54,21 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title + " - " + self.company_name + " (" + self.location + ") # " + self.email
+
+class Employee(models.Model):
+    related_request = models.ManyToManyField(Request)
+    related_vacancy = models.ManyToManyField(Job)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    conformity = models.IntegerField(default=0)
+    position = models.CharField(max_length=255)
+    vacancy = models.TextField(default='')
+    skills = models.ManyToManyField(Skill)
+
+    def set_skills(self, x):
+        self.skills = json.dumps(x)
+
+    def get_skills(self):
+        return json.loads(self.skills)
+
+    def __str__(self):
+        return self.position + " (" + self.status + ") - " + str(self.conformity) + "%"

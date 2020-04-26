@@ -57,14 +57,17 @@ class EmployeeProcessor:
                                     link = course[2]
                             skills.append(Skill(name=skill_name, isset=False, link=link))
 
-                    print(skills)
+                    print('SLILLS', skills)
                     employee = Employee.objects.create()
                     employee.status = request.status
                     employee.conformity = percentage
                     employee.position = request.position
                     employee.vacancy = job
-                    #employee.skills.set(skills)
                     employee.save()
+
+                    employee.related_request.add(request.id)
+                    employee.related_vacancy.add(job.get('id'))
+                    #employee.skills.set(skills)
 
                     if is_send_mails:
                         if not(email is None) & (email != ''):
