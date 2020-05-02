@@ -379,4 +379,4 @@ def get_chrome_driver_path():
         return os.path.join(settings.BASE_DIR, 'chromedriver_mac64')
     elif platform == "win32":
         # Windows chromedriver
-        return os.path.join(settings.BASE_DIR, 'chromedriver_win32.exe')
+        return os.path.join(settings.BASE_DIR, 'chromedriver.exe')

@@ -1,9 +1,5 @@
 from rest_framework.serializers import ModelSerializer, BaseSerializer
 
-<<<<<<< HEAD
-from scraping.models import Employee
-from random import randint
-=======
 from scraping.models import Employee, Request, Skill
 from random import randint
 
@@ -23,15 +19,11 @@ class RequestSerializer(ModelSerializer):
         fields = ('id', 'position', 'status', 'skills_text', 'skills')
         extra_kwargs = {'skills_text': {'write_only': True}}
 
->>>>>>> last
 
 class EmployeeSerializer(ModelSerializer):
     
     class Meta:
         model = Employee
-<<<<<<< HEAD
-        fields = ('id', 'status', 'skills', 'position')
-=======
         fields = ('id', 'position', 'status', 'vacancy', 'conformity', 'skills')
 
 class RequestCheckSerializer(ModelSerializer):
@@ -62,7 +54,6 @@ def request_create_serializer(request_obj, *args, **kwargs):
 
     d.data.append(item)
     return d
->>>>>>> last
 
 
 def mockup_employee_serializer(employee_view, *args, **kwargs):
@@ -77,11 +68,7 @@ def mockup_employee_serializer(employee_view, *args, **kwargs):
 
     for item in args[0]:
         if item.skills:
-<<<<<<< HEAD
-            skills = item.skills.split()
-=======
             skills = item.skills.splitlines()
->>>>>>> last
         else: 
             skills = []
 

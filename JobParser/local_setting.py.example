@@ -1,0 +1,11 @@
+EMAIL_HOST = 'smtp.google.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'mymail@gmail.ru'
+EMAIL_HOST_PASSWORD = 'mypassword'
+
+# JUST FOR DEPLOY
+# Max number of vacancies for REST API 
+API_MATCH_VACANCIES_COUNTER = 5
+# Max percent of conformity for REST API 
+API_MATCH_VACANCIES_PERCENT = 20
