@@ -70,5 +70,11 @@ class Employee(models.Model):
     def get_skills(self):
         return json.loads(self.skills)
 
+    def get_skills_for_vacancy(self):
+        tmp = {}
+        for skill in self.skills.all():
+            tmp[skill.name] = skill.link
+        return tmp
+
     def __str__(self):
         return self.position + " (" + self.status + ") - " + str(self.conformity) + "%"

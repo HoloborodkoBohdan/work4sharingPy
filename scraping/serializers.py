@@ -38,7 +38,7 @@ def request_create_serializer(request_obj, *args, **kwargs):
             'status': employee.status,
             'conformity': employee.conformity,
             'vacancy_full': employee.vacancy,
-            'skills': []
+            'skills': employee.get_skills_for_vacancy(),
         })
 
     d.data.append(item)

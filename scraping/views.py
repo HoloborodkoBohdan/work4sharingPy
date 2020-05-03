@@ -21,7 +21,6 @@ def api_main_page(request):
         'employees': reverse('employee-list', request=request),
         'vacancies': reverse('vacancy-list', request=request),
         'match': reverse('match-endpoint', request=request),
-
     })
 
 class EmployeeView(ListAPIView):

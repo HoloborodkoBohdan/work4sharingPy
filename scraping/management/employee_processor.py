@@ -48,16 +48,20 @@ class EmployeeProcessor:
 
                     skills = []
                     for skill_name in request_skills:
+                        # Create only missing skills
+                        link = ''
                         if skill_name in names:
-                            skills.append(Skill(name=skill_name, isset=True, link=''))
-                        else:
-                            link = ''
+                            # Search missing skill for learning materials
                             for course in skill_courses:
-                                if course[0] == skill_name:
+                                # Search in CSV by eng/de skill name 
+                                if course[0] == skill_name or course[1] == skill_name:
                                     link = course[2]
-                            skills.append(Skill(name=skill_name, isset=False, link=link))
+                                    break
+                            s = Skill(name=skill_name, isset=False, link=link)
+                            s.save()
+                            skills.append(s)
 
-                    print('SLILLS', skills)
+
                     employee = Employee.objects.create()
                     employee.status = request.status
                     employee.conformity = percentage
@@ -67,7 +71,7 @@ class EmployeeProcessor:
 
                     employee.related_request.add(request.id)
                     employee.related_vacancy.add(job.get('id'))
-                    #employee.skills.set(skills)
+                    employee.skills.set(skills)
 
                     if is_send_mails:
                         if not(email is None) & (email != ''):
