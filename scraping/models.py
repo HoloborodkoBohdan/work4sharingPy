@@ -2,6 +2,7 @@ import json
 
 from django.db import models
 from django.utils import timezone
+from skills.models import Skill as NewSkill
 
 STATUS_CHOICES = [
     ('active', 'active'),
@@ -15,6 +16,7 @@ WORK_TYPES = [
 
 
 class Skill(models.Model):
+    ''' TO_DO: Remove, after skills module will be ready ''' 
     name = models.TextField(default='')
     isset = models.BooleanField(default=False)
     link = models.TextField(default='')
@@ -22,6 +24,7 @@ class Skill(models.Model):
         return self.name + " (" + str(self.isset) + ") - " + self.link
 
 class Request(models.Model):
+    ''' All requests from company to find vacancy and learning skills '''
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     position = models.CharField(max_length=255)
     skills_text = models.TextField(default='')
@@ -34,6 +37,7 @@ class Request(models.Model):
 
 
 class Job(models.Model):
+    ''' All vacancies in our database '''
     # Vacancy
     site = models.TextField(default='')
     url = models.TextField(default='')
@@ -42,7 +46,7 @@ class Job(models.Model):
     contract = models.TextField(default='')
     description = models.TextField(default='')
     skills = models.TextField(default='')
-    date_created = models.DateField(default=timezone.now().date())
+    date_created = models.DateField(default=timezone.now().date()) # use DateTimeField with auto=now?
 
     # Company
     company_name = models.TextField(default='')
@@ -56,13 +60,18 @@ class Job(models.Model):
         return self.title + " - " + self.company_name + " (" + self.location + ") # " + self.email
 
 class Employee(models.Model):
+    ''' 
+    Result of match.py for new Request.
+    Should return skills to learn for related vacancy 
+    with percent of conformity.
+    '''
     related_request = models.ManyToManyField(Request)
     related_vacancy = models.ManyToManyField(Job)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active') # How we use it?
     conformity = models.IntegerField(default=0)
-    position = models.CharField(max_length=255)
-    vacancy = models.TextField(default='')
-    skills = models.ManyToManyField(Skill)
+    position = models.CharField(max_length=255) # related_vacancy.title 
+    vacancy = models.TextField(default='') # ?
+    skills = models.ManyToManyField(Skill) # Use NewSkill here
 
     def set_skills(self, x):
         self.skills = json.dumps(x)

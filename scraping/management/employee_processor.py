@@ -26,7 +26,9 @@ class EmployeeProcessor:
         print("###", request.position)
         recommendations = self.load_csv()
         variants = list()
+        # Skills of our candidate. Transform from text to list
         request_skills = request.skills_text.splitlines()
+        # TO_FIX: Jobs пиходит как dict из match.py
         for job in self.jobs:
             if job.get('site') is None:
                 continue
@@ -61,7 +63,7 @@ class EmployeeProcessor:
                             s.save()
                             skills.append(s)
 
-
+                    print('SKILLS TO LEARN', skills)
                     employee = Employee.objects.create()
                     employee.status = request.status
                     employee.conformity = percentage
