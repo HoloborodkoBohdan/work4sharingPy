@@ -10,8 +10,8 @@ from JobParser.local_settings import API_MATCH_VACANCIES_COUNTER, API_MATCH_VACA
 
 from scraping.models import Employee, Job
 from scraping.serializers import (
-    JobSerializer, EmployeeSerializer, RequestCheckSerializer,
-    request_create_serializer
+    JobSerializer, EmployeeSerializer, 
+    RequestCheckSerializer, request_create_serializer
 )
 
 
@@ -20,6 +20,8 @@ def api_main_page(request):
     return Response({
         'vacancies': reverse('vacancy-list', request=request),
         'match': reverse('match-endpoint', request=request),
+        'skills': reverse('skill-list', request=request),
+        'courses': reverse('course-list', request=request),
     })
 
 class EmployeeView(ListAPIView):

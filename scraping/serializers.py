@@ -1,16 +1,8 @@
-
-
 from rest_framework.serializers import ModelSerializer, BaseSerializer, SerializerMethodField
 from django.core import serializers
 from django.forms.models import model_to_dict
 
 from scraping.models import Employee, Request, Job
-
-
-class JobSerializer(ModelSerializer):
-    class Meta:
-        model = Job
-        fields = '__all__'
 
 
 class EmployeeSerializer(ModelSerializer):
@@ -37,6 +29,7 @@ class RequestCheckSerializer(ModelSerializer):
         model = Request
         fields = ('id', 'position', 'status', 'skills_text', 'skills')
 
+
 def request_create_serializer(request_obj, *args, **kwargs):
     my_obj = type('MyObject', (), {})
     d = my_obj()
@@ -61,3 +54,10 @@ def request_create_serializer(request_obj, *args, **kwargs):
 
     d.data.append(item)
     return d
+
+
+class JobSerializer(ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
+
