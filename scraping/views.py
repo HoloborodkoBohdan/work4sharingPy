@@ -18,7 +18,6 @@ from scraping.serializers import (
 @api_view(['GET'])
 def api_main_page(request):
     return Response({
-        'employees': reverse('employee-list', request=request),
         'vacancies': reverse('vacancy-list', request=request),
         'match': reverse('match-endpoint', request=request),
     })

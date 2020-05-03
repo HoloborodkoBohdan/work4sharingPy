@@ -1,11 +1,11 @@
 from django.contrib import admin
-from scraping.models import Employee, Job, Request, Skill
+from scraping.models import Employee, Job, Request
 
-@admin.register(Skill)
-class SkillAdmin(admin.ModelAdmin):
-    model = Skill
-    list_display = ['name', 'isset', 'link']
-    search_fields = ['name']
+# @admin.register(Skill)
+# class SkillAdmin(admin.ModelAdmin):
+#     model = Skill
+#     list_display = ['name', 'isset', 'link']
+#     search_fields = ['name']
 
 
 @admin.register(Job)
@@ -18,7 +18,7 @@ class JobAdmin(admin.ModelAdmin):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     model = Employee
-    list_display = ['position', 'status', 'conformity']
+    list_display = ['__str__', 'status', 'conformity']
     raw_id_fields = ['related_request', 'related_vacancy']
     filter_horizontal = ['skills',]
 

@@ -1,6 +1,10 @@
-from rest_framework.serializers import ModelSerializer, BaseSerializer
 
-from scraping.models import Employee, Request, Skill, Job
+
+from rest_framework.serializers import ModelSerializer, BaseSerializer, SerializerMethodField
+from django.core import serializers
+from django.forms.models import model_to_dict
+
+from scraping.models import Employee, Request, Job
 
 
 class JobSerializer(ModelSerializer):
@@ -10,9 +14,22 @@ class JobSerializer(ModelSerializer):
 
 
 class EmployeeSerializer(ModelSerializer):
+    vacancy = SerializerMethodField(source='get_vacancy')
+    position = SerializerMethodField(source='get_position')
+    skills = SerializerMethodField(source='get_skills')
+
     class Meta:
         model = Employee
-        fields = ('id', 'position', 'status', 'vacancy', 'conformity', 'skills')
+        fields = ('id', 'status', 'position', 'vacancy', 'conformity', 'skills', 'related_request', 'related_vacancy')
+
+    def get_vacancy(self, obj):
+        return serializers.serialize('json', obj.related_vacancy.all())
+
+    def get_position(self, obj):
+        return obj.related_request.all()[0].position
+
+    def get_skills(self, obj):
+        return obj.get_skills_for_vacancy()
 
 
 class RequestCheckSerializer(ModelSerializer):
@@ -27,6 +44,7 @@ def request_create_serializer(request_obj, *args, **kwargs):
 
     item = {
         'id': request_obj.id,
+        'id': request_obj.position,
         'status': request_obj.status,
         'skills_text': request_obj.skills_text,
         'vacancies': []
@@ -37,7 +55,7 @@ def request_create_serializer(request_obj, *args, **kwargs):
             'id': employee.id,
             'status': employee.status,
             'conformity': employee.conformity,
-            'vacancy_full': employee.vacancy,
+            'vacancy_full': model_to_dict(employee.related_vacancy),
             'skills': employee.get_skills_for_vacancy(),
         })
 

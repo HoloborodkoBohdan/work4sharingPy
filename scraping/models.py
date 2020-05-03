@@ -1,8 +1,9 @@
 import json
 
 from django.db import models
+from django.forms.models import model_to_dict
 from django.utils import timezone
-from skills.models import Skill as NewSkill
+from skills.models import Skill
 
 STATUS_CHOICES = [
     ('active', 'active'),
@@ -13,15 +14,6 @@ WORK_TYPES = [
     ('Full time', 'Full time'),
     ('Part time', 'Part time'),
 ]
-
-
-class Skill(models.Model):
-    ''' TO_DO: Remove, after skills module will be ready ''' 
-    name = models.TextField(default='')
-    isset = models.BooleanField(default=False)
-    link = models.TextField(default='')
-    def __str__(self):
-        return self.name + " (" + str(self.isset) + ") - " + self.link
 
 class Request(models.Model):
     ''' All requests from company to find vacancy and learning skills '''
@@ -69,12 +61,13 @@ class Employee(models.Model):
     related_vacancy = models.ManyToManyField(Job)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active') # How we use it?
     conformity = models.IntegerField(default=0)
-    position = models.CharField(max_length=255) # related_vacancy.title 
-    vacancy = models.TextField(default='') # ?
-    skills = models.ManyToManyField(Skill) # Use NewSkill here
+    skills = models.ManyToManyField(Skill)
 
     def set_skills(self, x):
         self.skills = json.dumps(x)
+
+    def get_position(self):
+        return self.related_request.all()[0].position
 
     def get_skills(self):
         return json.loads(self.skills)
@@ -82,8 +75,8 @@ class Employee(models.Model):
     def get_skills_for_vacancy(self):
         tmp = {}
         for skill in self.skills.all():
-            tmp[skill.name] = skill.link
+            tmp[skill.name] = skill.get_links_for_courses()
         return tmp
 
     def __str__(self):
-        return self.position + " (" + self.status + ") - " + str(self.conformity) + "%"
+        return self.get_position() + " (" + self.status + ") - " + str(self.conformity) + "%"
