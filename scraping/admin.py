@@ -1,12 +1,6 @@
 from django.contrib import admin
 from scraping.models import Employee, Job, Request
 
-# @admin.register(Skill)
-# class SkillAdmin(admin.ModelAdmin):
-#     model = Skill
-#     list_display = ['name', 'isset', 'link']
-#     search_fields = ['name']
-
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
