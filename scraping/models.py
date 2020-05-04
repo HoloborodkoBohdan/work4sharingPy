@@ -67,7 +67,7 @@ class Employee(models.Model):
         self.skills = json.dumps(x)
 
     def get_position(self):
-        return self.related_request.all()[0].position
+        return self.related_request.all()[0].position if len(self.related_request.all()) > 0 else ""
 
     def get_skills(self):
         return json.loads(self.skills)

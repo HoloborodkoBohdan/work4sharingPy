@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, BaseSerializer, SerializerMethodField
 from django.core import serializers
-from django.forms.models import model_to_dict
+from django.forms import model_to_dict
 
 from scraping.models import Employee, Request, Job
 
@@ -44,11 +44,12 @@ def request_create_serializer(request_obj, *args, **kwargs):
     }
 
     for employee in request_obj.employee_set.all():
+        found_vacancies = employee.related_vacancy.first()
         item['vacancies'].append({
             'id': employee.id,
             'status': employee.status,
             'conformity': employee.conformity,
-            'vacancy_full': model_to_dict(employee.related_vacancy),
+            'vacancy_full': model_to_dict(found_vacancies) if found_vacancies != None else False,
             'skills': employee.get_skills_for_vacancy(),
         })
 

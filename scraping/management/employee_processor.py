@@ -29,10 +29,18 @@ class EmployeeProcessor:
         # Skills of our candidate. Transform from text to list
         request_skills = request.skills_text.splitlines()
         # TO_FIX: Jobs пиходит как dict из match.py
+        # Только для hh.ru, так как только там есть скилы. Для коректной работы у каждой вакансии 
+        # должны быть скилы. Без них вакансия пропускается
         for job in self.jobs:
-            if job.get('site') is None:
+            if job.get('site') != 'hh.ru':
                 continue
-            percentage, must_have_skills = vacancy_percentage(request_skills, job.get('description', ''))
+
+            skills_for_vacancy = job.get('skills', False)
+            if not skills_for_vacancy:
+                continue
+
+            skills_for_vacancy = skills_for_vacancy.split(', ')
+            percentage, must_have_skills = vacancy_percentage(request_skills, job.get('description', ''), skills_for_vacancy)
             skill_courses = courses_advice(must_have_skills)
             variants.append((percentage, job, skill_courses))
 
