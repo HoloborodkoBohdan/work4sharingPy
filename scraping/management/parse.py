@@ -190,6 +190,7 @@ def get_jobs_glassdoor(num_jobs, verbose):
 
     return jobs
 
+
 def get_jobs_stepstone(num_jobs, verbose):
     '''Gathers jobs as a dataframe, scraped from Stepstone'''
 
@@ -335,6 +336,8 @@ def get_jobs_hh(num_jobs, verbose):
     prefs = {"profile.default_content_setting_values.geolocation": 2}
     options.add_experimental_option("prefs", prefs)
     options.add_argument("--disable-geolocation")
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--ignore-ssl-errors')
     # Uncomment the line below if you'd like to scrape without a new Chrome window every time.
     # options.add_argument('headless')
     chrome_driver_path = get_chrome_driver_path()
@@ -413,7 +416,7 @@ def get_chrome_driver_path():
         return os.path.join(settings.BASE_DIR, 'chromedriver_mac64')
     elif platform == "win32":
         # Windows chromedriver
-        return os.path.join(settings.BASE_DIR, 'chromedriver_win32.exe')
+        return os.path.join(settings.BASE_DIR, 'chromedriver.exe')
 
 
 def get_text_value_by_xpath_or_set_not_found(element_xpath, driver):
