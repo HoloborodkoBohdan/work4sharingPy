@@ -9,3 +9,7 @@ EMAIL_HOST_PASSWORD = 'mypassword'
 API_MATCH_VACANCIES_COUNTER = 5
 # Max percent of conformity for REST API 
 API_MATCH_VACANCIES_PERCENT = 20
+
+# Credinteals for parsing rutracker
+RUTRACKER_LOGIN = 'login'
+RUTRACKER_PASSWORD = 'pass'
