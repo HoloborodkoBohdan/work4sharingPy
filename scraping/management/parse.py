@@ -1,13 +1,16 @@
 import argparse
 import os
+import re
 from sys import platform
 
 from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
 from selenium import webdriver
 import time
-import json
 
 from JobParser import settings
+from scraping.models import Job
+
+NOT_FOUND_VALUE = -1
 
 
 def parsing():
@@ -98,15 +101,9 @@ def get_jobs_glassdoor(num_jobs, verbose):
                 except:
                     time.sleep(3)
 
-            try:
-                salary_estimate = driver.find_element_by_xpath('.//span[@class="gray small salary"]').text
-            except NoSuchElementException:
-                salary_estimate = -1  # You need to set a "not found value. It's important."
 
-            try:
-                rating = driver.find_element_by_xpath('.//span[@class="rating"]').text
-            except NoSuchElementException:
-                rating = -1  # You need to set a "not found value. It's important."
+            salary_estimate = get_text_value_by_xpath_or_set_not_found('.//span[@class="gray small salary"]', driver)
+            rating = get_text_value_by_xpath_or_set_not_found('.//span[@class="rating"]', driver)
 
             # Printing for debugging
             if verbose:
@@ -123,57 +120,18 @@ def get_jobs_glassdoor(num_jobs, verbose):
             try:
                 driver.find_element_by_xpath('.//div[@class="tab" and @data-tab-type="overview"]').click()
 
-                try:
-                    # <div class="infoEntity">
-                    #    <label>Headquarters</label>
-                    #    <span class="value">San Francisco, CA</span>
-                    # </div>
-                    headquarters = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Headquarters"]//following-sibling::*').text
-                except NoSuchElementException:
-                    headquarters = -1
-
-                try:
-                    size = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Size"]//following-sibling::*').text
-                except NoSuchElementException:
-                    size = -1
-
-                try:
-                    founded = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Founded"]//following-sibling::*').text
-                except NoSuchElementException:
-                    founded = -1
-
-                try:
-                    type_of_ownership = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Type"]//following-sibling::*').text
-                except NoSuchElementException:
-                    type_of_ownership = -1
-
-                try:
-                    industry = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Industry"]//following-sibling::*').text
-                except NoSuchElementException:
-                    industry = -1
-
-                try:
-                    sector = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Sector"]//following-sibling::*').text
-                except NoSuchElementException:
-                    sector = -1
-
-                try:
-                    revenue = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Revenue"]//following-sibling::*').text
-                except NoSuchElementException:
-                    revenue = -1
-
-                try:
-                    competitors = driver.find_element_by_xpath(
-                        './/div[@class="infoEntity"]//label[text()="Competitors"]//following-sibling::*').text
-                except NoSuchElementException:
-                    competitors = -1
+                # <div class="infoEntity">
+                #    <label>Headquarters</label>
+                #    <span class="value">San Francisco, CA</span>
+                # </div>
+                headquarters = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Headquarters"]//following-sibling::*', driver)
+                size = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Size"]//following-sibling::*', driver)
+                founded = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Founded"]//following-sibling::*', driver)
+                type_of_ownership = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Type"]//following-sibling::*', driver)
+                industry = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Industry"]//following-sibling::*', driver)
+                sector = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Sector"]//following-sibling::*', driver)
+                revenue = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Revenue"]//following-sibling::*', driver)
+                competitors = get_text_value_by_xpath_or_set_not_found('.//div[@class="infoEntity"]//label[text()="Competitors"]//following-sibling::*', driver)
 
             except NoSuchElementException:  # Rarely, some job postings do not have the "Company" tab.
                 headquarters = -1
@@ -370,6 +328,82 @@ def get_jobs_stepstone(num_jobs, verbose):
 
     return jobs
 
+
+def get_jobs_hh(num_jobs, verbose):
+    url = 'https://hh.ru/search/vacancy?L_save_area=true&clusters=true&enable_snippets=true&showClusters=true'
+    options = webdriver.ChromeOptions()
+    prefs = {"profile.default_content_setting_values.geolocation": 2}
+    options.add_experimental_option("prefs", prefs)
+    options.add_argument("--disable-geolocation")
+    # Uncomment the line below if you'd like to scrape without a new Chrome window every time.
+    # options.add_argument('headless')
+    chrome_driver_path = get_chrome_driver_path()
+    driver = webdriver.Chrome(
+        executable_path=chrome_driver_path,
+        options=options)
+    driver.set_window_size(1120, 1000)
+    driver.get(url)
+
+    jobs = []
+    out_of_vacancies = False
+    while len(jobs) < num_jobs and not out_of_vacancies:  # If true, should be still looking for new jobs.
+
+        # Let the page load. Change this number based on your internet speed.
+        # Or, wait until the webpage is loaded, instead of hardcoding it.
+        time.sleep(2)
+
+        # Going through each job in this page
+        job_links = driver.find_elements_by_class_name(
+            "bloko-link.HH-LinkModifier")  # bloko-link.HH-LinkModifier <a> element contains vacancy name and link.
+
+        for job_link in job_links:
+
+            print("Progress: {}".format("" + str(len(jobs)) + "/" + str(num_jobs)))
+            if len(jobs) >= num_jobs:
+                break
+
+            vacancy_url = job_link.get_attribute('href')  # You might
+            vacancy_url = remove_hh_geolocation_url(vacancy_url)
+
+            if Job.objects.filter(url=vacancy_url):
+                continue
+
+            # open vacancy details tab
+            driver.execute_script("window.open();")
+            driver.switch_to.window(driver.window_handles[1])
+            driver.get(vacancy_url)
+            time.sleep(1)
+
+            # skip vacancy in case of external link
+            if "hh.ru/" not in driver.current_url:
+                driver.close()
+                time.sleep(1)
+                # go back to vacancies list
+                driver.switch_to.window(driver.window_handles[0])
+                continue
+
+            job = parse_hh_vacancy_page(driver, verbose)
+            jobs.append(job)
+
+            driver.close()
+            time.sleep(1)
+            # go back to vacancies list
+            driver.switch_to.window(driver.window_handles[0])
+            if len(jobs) >= num_jobs:
+                break
+        # if there is next page, then go
+        try:
+            next_button = driver.find_element_by_xpath('.//a[contains(@data-qa, "pager-next")]')
+            next_button.click()
+            time.sleep(1)
+        except NoSuchElementException:
+            out_of_vacancies = True
+
+        # end of page
+
+    return jobs
+
+
 def get_chrome_driver_path():
     if platform == "linux" or platform == "linux2":
         # linux chromedriver
@@ -379,4 +413,77 @@ def get_chrome_driver_path():
         return os.path.join(settings.BASE_DIR, 'chromedriver_mac64')
     elif platform == "win32":
         # Windows chromedriver
-        return os.path.join(settings.BASE_DIR, 'chromedriver.exe')
+        return os.path.join(settings.BASE_DIR, 'chromedriver_win32.exe')
+
+
+def get_text_value_by_xpath_or_set_not_found(element_xpath, driver):
+    try:
+        return driver.find_element_by_xpath(element_xpath).text
+    except NoSuchElementException:
+        return NOT_FOUND_VALUE # You need to set a "not found value. It's important."
+
+
+def get_text_value_by_class_name_or_set_not_found(class_name, driver):
+    try:
+        return driver.find_element_by_class_name(class_name).text
+    except NoSuchElementException:
+        return NOT_FOUND_VALUE
+
+
+def remove_hh_geolocation_url(vacancy_url):
+    location_url_pattern = re.compile(r'(?!https\:\/\/)((\w+)[^hh]\.)(?!\.ru)')
+    return location_url_pattern.sub('', vacancy_url)
+
+
+def parse_hh_vacancy_page(driver, verbose):
+    company_name = ''
+    location = ''
+    job_title = ''
+    job_description = ''
+    skills = ''
+    rating = ''
+
+    company_name = get_text_value_by_class_name_or_set_not_found('bloko-section-header-2_lite', driver)
+    location = get_text_value_by_xpath_or_set_not_found('.//p[contains(@data-qa, "location")]', driver)
+    job_title = get_text_value_by_xpath_or_set_not_found('.//h1[contains(@data-qa, "vacancy-title")]', driver)
+    job_description = get_text_value_by_class_name_or_set_not_found('g-user-content', driver)
+    if job_description == NOT_FOUND_VALUE:
+        job_description = get_text_value_by_class_name_or_set_not_found('vacancy-branded-user-content', driver)
+
+    salary_estimate = get_text_value_by_xpath_or_set_not_found('.//span[@class="bloko-header-2 bloko-header-2_lite"]', driver)
+    try:
+        # skills can be empty
+        skills_elements = driver.find_elements_by_xpath('//span[contains(@class, "bloko-tag__section bloko-tag__section_text")]')
+        for element in skills_elements:
+            if len(skills) > 0:
+                skills += ', ' + element.text
+            else:
+                skills += element.text
+    except Exception:
+        skills = NOT_FOUND_VALUE
+
+    if verbose:
+        print("Job Title: {}".format(job_title))
+        print("Salary Estimate: {}".format(salary_estimate))
+        print("Job Description: {}".format(job_description[:500]))
+        print("Rating: {}".format(rating))
+        print("Company Name: {}".format(company_name))
+        print("Location: {}".format(location))
+        print("Skills: {}".format(skills))
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+    vacancy_url = remove_hh_geolocation_url(driver.current_url)
+    return {
+        'url': vacancy_url,
+        'title': job_title,
+        'work_type': "",
+        'contract': "",
+        'description': job_description,
+        'skills': skills,
+        'company_name': company_name,
+        'location': location,
+        'industry': "",
+        'email': "",
+        'phone': "",
+        'address': "",
+    }

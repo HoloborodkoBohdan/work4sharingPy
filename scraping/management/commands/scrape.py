@@ -2,14 +2,14 @@ from datetime import datetime
 
 from django.core.management import BaseCommand
 
-from scraping.management.parse import get_jobs_glassdoor, get_jobs_stepstone
+from scraping.management.parse import get_jobs_glassdoor, get_jobs_stepstone, get_jobs_hh
 from scraping.models import Job
 
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('site', type=str, 
-            help='Site for parsing. Available: glassdoor, stepstone'
+            help='Site for parsing. Available: glassdoor, stepstone, hh'
         )
         parser.add_argument('-c', '--count', type=int, 
             help='Number of jobs for parsing', 
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('site', type=str, 
-            help='Site for parsing. Available: glassdoor, stepstone'
+            help='Site for parsing. Available: glassdoor, stepstone, hh'
         )
         parser.add_argument('-c', '--count', type=int, 
             help='Number of jobs for parsing', 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         site_for_parsing = options.get('site')
         elements_for_parsing = options.get('count') or 20
-        available_sites = ['glassdoor', 'stepstone']
+        available_sites = ['glassdoor', 'stepstone', 'hh']
         site = 'www.example.com'
 
         if site_for_parsing not in available_sites:
@@ -40,6 +40,9 @@ class Command(BaseCommand):
         elif site_for_parsing == 'stepstone':
             site = 'www.stepstone.de'
             jobs = get_jobs_stepstone(elements_for_parsing, False)
+        elif site_for_parsing == 'hh':
+            site = 'hh.ru'
+            jobs = get_jobs_hh(elements_for_parsing, False)
 
         model_jobs = []
         for job in jobs:
